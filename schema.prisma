@@ -1,0 +1,80 @@
+// datasource db defines the database connection settings.
+// It is configured for PostgreSQL and uses an environment variable for the connection URL.
+// The 'extensions' feature enables the use of PostgreSQL-specific data types.
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// generator db configures Prisma Client settings.
+// It is set up to use Prisma Client Python with asyncio interface and specific features.
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures      = ["postgresqlExtensions"]
+}
+
+model User {
+  id             String          @id @default(dbgenerated("gen_random_uuid()"))
+  email          String          @unique
+  password       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  role           Role            @default(USER)
+  conversionLogs ConversionLog[]
+  apiKeys        ApiKey[]
+  subscription   Subscription?
+}
+
+model ApiKey {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  key       String   @unique
+  createdAt DateTime @default(now())
+  userId    String
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ConversionLog {
+  id              String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId          String?
+  baseCurrency    String
+  targetCurrency  String
+  originalAmount  Float
+  convertedAmount Float
+  createdAt       DateTime @default(now())
+  User            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model ErrorLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  message   String
+  detail    String?
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String   @unique
+  startDate DateTime @default(now())
+  endDate   DateTime
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId    String
+}
+
+model Plan {
+  id            String         @id @default(dbgenerated("gen_random_uuid()"))
+  name          String
+  price         Float
+  duration      Int // Duration in days
+  createdAt     DateTime       @default(now())
+  subscriptions Subscription[]
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+

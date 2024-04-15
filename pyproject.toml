@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "currency-exchanger-api"
+version = "0.1.0"
+description = "To accomplish the task of creating an endpoint that accepts a base currency, a target currency code, and a float value, and then retrieves real-time exchange rate data to calculate and return the converted value in the target currency, we will employ a tech stack comprising Python as the programming language, FastAPI as the API framework, PostgreSQL for the database, and Prisma as the ORM. The key steps and considerations for implementing this functionality are summarized below:"
+authors = ["AutoGPT <info@agpt.co>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+fastapi = "*"
+forex-python = "^1.5"
+httpx = "*"
+prisma = "*"
+pydantic = "*"
+uvicorn = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
